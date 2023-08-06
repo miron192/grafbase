@@ -1,7 +1,8 @@
-import { ProjectInterface, UserProfile } from "@/common.types";
-import { getUserProjects } from "@/lib/actions";
-import Image from "next/image";
 import Link from "next/link";
+
+import { getUserProjects } from "@/lib/actions";
+import { ProjectInterface, UserProfile } from "@/common.types";
+import Image from "next/image";
 
 type Props = {
   userId: string;
@@ -16,17 +17,19 @@ const RelatedProjects = async ({ userId, projectId }: Props) => {
   );
 
   if (filteredProjects?.length === 0) return null;
+
   return (
     <section className="flex flex-col mt-32 w-full">
       <div className="flexBetween">
         <p className="text-base font-bold">More by {result?.user?.name}</p>
         <Link
-          href={`/rpofile/${result?.user?.id}`}
-          className="text-primary-purble text-base"
+          href={`/profile/${result?.user?.id}`}
+          className="text-primary-purple text-base"
         >
           View All
         </Link>
       </div>
+
       <div className="related_projects-grid">
         {filteredProjects?.map(({ node }: { node: ProjectInterface }) => (
           <div className="flexCenter related_project-card drop-shadow-card">
