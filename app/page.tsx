@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { fetchAllProjects } from "@/lib/actions";
 import { ProjectInterface } from "@/common.types";
 import ProjectCard from "@/components/ProjectCard";
