@@ -4,9 +4,9 @@ import { AdapterUser } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
 import jsonwebtoken from "jsonwebtoken";
 import { JWT } from "next-auth/jwt";
-import { auth } from "@grafbase/sdk";
-import { SessionInterface, UserProfile } from "@/common.types";
+
 import { createUser, getUser } from "./actions";
+import { SessionInterface, UserProfile } from "@/common.types";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -15,14 +15,13 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-
   jwt: {
     encode: ({ secret, token }) => {
       const encodedToken = jsonwebtoken.sign(
         {
           ...token,
           iss: "grafbase",
-          exp: Math.floor(Date.now() / 1000 + 60 * 60),
+          exp: Math.floor(Date.now() / 1000) + 60 * 60,
         },
         secret
       );
@@ -30,18 +29,21 @@ export const authOptions: NextAuthOptions = {
       return encodedToken;
     },
     decode: async ({ secret, token }) => {
-      const decodedToken = jsonwebtoken.verify(token!, secret) as JWT;
-      return decodedToken;
+      const decodedToken = jsonwebtoken.verify(token!, secret);
+      return decodedToken as JWT;
     },
   },
-  theme: { colorScheme: "light", logo: "/logo.png" },
-
+  theme: {
+    colorScheme: "light",
+    logo: "/logo.svg",
+  },
   callbacks: {
     async session({ session }) {
       const email = session?.user?.email as string;
 
       try {
         const data = (await getUser(email)) as { user?: UserProfile };
+
         const newSession = {
           ...session,
           user: {
@@ -51,8 +53,8 @@ export const authOptions: NextAuthOptions = {
         };
 
         return newSession;
-      } catch (error) {
-        console.log(error);
+      } catch (error: any) {
+        console.error("Error retrieving user data: ", error.message);
         return session;
       }
     },
@@ -72,7 +74,7 @@ export const authOptions: NextAuthOptions = {
 
         return true;
       } catch (error: any) {
-        console.log(error);
+        console.log("Error checking if user exists: ", error.message);
         return false;
       }
     },
